@@ -1,0 +1,13 @@
+no change     /sw/external/python/anaconda3_gpu/condabin/conda
+no change     /sw/external/python/anaconda3_gpu/bin/conda
+no change     /sw/external/python/anaconda3_gpu/bin/conda-env
+no change     /sw/external/python/anaconda3_gpu/bin/activate
+no change     /sw/external/python/anaconda3_gpu/bin/deactivate
+no change     /sw/external/python/anaconda3_gpu/etc/profile.d/conda.sh
+no change     /sw/external/python/anaconda3_gpu/etc/fish/conf.d/conda.fish
+no change     /sw/external/python/anaconda3_gpu/shell/condabin/Conda.psm1
+no change     /sw/external/python/anaconda3_gpu/shell/condabin/conda-hook.ps1
+no change     /sw/external/python/anaconda3_gpu/lib/python3.9/site-packages/xontrib/conda.xsh
+no change     /sw/external/python/anaconda3_gpu/etc/profile.d/conda.csh
+no change     /u/gfs3/.bashrc
+No action taken.

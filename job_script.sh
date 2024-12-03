@@ -10,14 +10,14 @@
 #SBATCH --mem=480G
 
 # Set the job name
-#SBATCH --job-name="Multinomial_Log"
+#SBATCH --job-name="Log_Reg"
 
 # Set the partition
 #SBATCH --partition=interlagos
 
 # Set the output and error file paths
-#SBATCH --output=Multinomial_log_%j.out
-#SBATCH --error=Multinomial_log_%j.err
+#SBATCH --output=out_log.out
+#SBATCH --error=err_log.err
 
 # Set email notifications
 #SBATCH --mail-type=BEGIN,END,FAIL    # Notifications for job start, end, and failure
@@ -28,8 +28,18 @@ module load modtree/gpu
 module load gcc anaconda3_gpu
 module load cuda/12.2.1
 
+
 # Activate the appropriate conda environment
-source activate /u/gfs3/.conda/envs/BigData
+conda init 
+bash
+conda activate /u/gfs3/.conda/envs/BigData
+
+
 
 # Run the Python script
-python /u/gfs3/Project/DSRS/gfs3/stat480_project/Multinomial/multinomial_logreg.py
+#python /u/gfs3/Project/DSRS/gfs3/stat480_project/multinomial_logreg.py
+python /u/gfs3/Project/DSRS/gfs3/stat480_project/binomial_logreg.py
+
+
+#sbatch job_script.sh
+

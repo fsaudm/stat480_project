@@ -16,14 +16,16 @@ np.random.seed(480)
 
 
 # Load Clean Data
-file_list = glob.glob("stat480_project/data/clean_*.csv") 
+file_list = glob.glob("data/clean_*.csv") 
 
 df = pd.concat([pd.read_csv(file) for file in file_list], # list comprehension, supposedly faster than for loop
                ignore_index=True
                )
 
+df.isna().sum()
 
-
+# drop rows with missing values in MOST_SEVERE_INJURY
+df = df.dropna(subset=['MOST_SEVERE_INJURY'])
 
 
 
