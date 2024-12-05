@@ -121,6 +121,15 @@ y = df[response]
 num_cores = os.cpu_count()  # or multiprocessing.cpu_count()
 print("Total CPU cores available:", num_cores)
 
+
+
+### 1st LASSO
+xx = X.drop(columns="PRIM_CONTRIBUTORY_CAUSE[T.UNDER THE INFLUENCE OF ALCOHOL/DRUGS (USE WHEN ARREST IS EFFECTED)]")
+yy = X["PRIM_CONTRIBUTORY_CAUSE[T.UNDER THE INFLUENCE OF ALCOHOL/DRUGS (USE WHEN ARREST IS EFFECTED)]"]
+
+
+
+
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 
