@@ -93,7 +93,7 @@ responses = ['CRASH_TYPE', #1
              'MOST_SEVERE_INJURY', #2
              'INJURIES_TOTAL', #3
              'INJURIES_FATAL', 'INJURIES_INCAPACITATING', 'INJURIES_NON_INCAPACITATING', 'INJURIES_REPORTED_NOT_EVIDENT', 'INJURIES_NO_INDICATION',
-             #'DAMAGE',
+             'DAMAGE',
              ]
 
 
@@ -134,7 +134,7 @@ lasso_logistic = LogisticRegressionCV(
     max_iter=1000,
     tol=1e-3,
     random_state=480,
-    Cs=10,  # Number of lambda values,
+    Cs=np.logspace(-7, 7, 100),  # Number of lambda values,
     n_jobs=-1,  # Use all processors: -1
 )
 
