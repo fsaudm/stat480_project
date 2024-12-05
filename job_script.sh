@@ -37,8 +37,9 @@ conda activate /u/gfs3/.conda/envs/BigData
 
 
 # Run the Python script
-#python /u/gfs3/Project/DSRS/gfs3/stat480_project/multinomial_logreg.py
-python /u/gfs3/Project/DSRS/gfs3/stat480_project/binomial_logreg.py
+#python /u/gfs3/Project/DSRS/gfs3/stat480_project/binomial_logreg.py
+python /u/gfs3/Project/DSRS/gfs3/stat480_project/multinomial_logreg.py
+
 
 
 #sbatch job_script.sh
