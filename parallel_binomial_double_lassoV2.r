@@ -1,3 +1,6 @@
+# V2 removes 'DAMAGE', 'REPORT_TYPE' from the predictors.
+# V2 removes the problematic variables from the non-zero variables list of V1.
+
 library(tidyverse)
 library(data.table)
 library(gamlr)
@@ -115,16 +118,16 @@ print(object.size(y), units = "auto") # 3.4 Mb
 Keeping lambda.min.ratio as default, model at seg100. Exploring further seems to not like regularization...
 "
 
-#naive <- gamlr(X, y = y , family = "binomial", standardize=TRUE) 
-#saveRDS(naive, file = "R_output/naive_defaultL_noDamg.rds") # save the model
-naive <- readRDS("R_output/naive_defaultL_noDamg.rds") # load the model
+naive <- gamlr(X, y = y , family = "binomial", standardize=TRUE) 
+saveRDS(naive, file = "R_output/naive_binomial_lassoV2.rds") # save the model
+naive <- readRDS("R_output/naive_binomial_lassoV2.rds") # load the model
 naive.B <- coef(naive)
 
 min.AICc.lambda <- naive$lambda[ which.min( AICc(naive) ) ] 
 paste("Min AICc lambda: ", min.AICc.lambda)
 
 # # Path plot
-png("R_output/naive_defaultL_noDamg.png", width = 800, height = 600) # save the
+png("R_output/naive_binomial_lasso_pathV2.png", width = 800, height = 600) # save the
 plot(naive, against = "pen")
 dev.off()
 
@@ -163,17 +166,9 @@ library(gamlr)
 options(future.globals.maxSize = 4 * 1024^3)
 plan(multicore)
 
-
-# Progress counter
-progress_counter <- new.env()
-progress_counter$n <- 0
-
-total_vars <- length(non.zero.vars)
-
 parallel.time <- system.time({
-  results <- future_sapply(seq_along(non.zero.vars), function(i) {
+  results <- future_sapply(non.zero.vars, function(var_name) {
     gc()
-    var_name <- non.zero.vars[i]
     tryCatch({
       # Step 1: Treatment variable
       d <- X[, var_name]
@@ -195,10 +190,6 @@ parallel.time <- system.time({
       lasso2 <- gamlr(x = cbind(d, d_hat, XX), y = y, free = 2, family = "binomial", standardize = TRUE)
       B2 <- coef(lasso2)
       
-      # Increment progress
-      progress_counter$n <- progress_counter$n + 1
-      cat(sprintf("Completed: %d/%d (%s)\n", progress_counter$n, total_vars, var_name))
-      
       # results
       list(
         variable = var_name,
@@ -206,19 +197,15 @@ parallel.time <- system.time({
         r2 = r2
       )
     }, error = function(e) {
-      # Increment progress on error
-      progress_counter$n <- progress_counter$n + 1
-      cat(sprintf("Error in: %d/%d (%s): %s\n", progress_counter$n, total_vars, var_name, e$message))
-      
-      # error logging (if any)
+      # Handle errors "gracefully"
       list(variable = var_name, error = e$message)
     })
   }, simplify = FALSE)
 })
 
-
 print(parallel.time)
-saveRDS(results, file = "R_output/lasso_results_naive_defaultL_noDamg.rds")
+saveRDS(results, file = "R_output/parallel_lasso_resultsV2.rds")
+results <- readRDS("R_output/parallel_lasso_resultsV2.rds") # load the model
 
 
 
@@ -235,7 +222,7 @@ results.df <- do.call(rbind, lapply(results, function(res) {
 
 
 # Save results :)
-write.csv(results.df, file = "R_output/lasso_results_naive_defaultL_noDamg.csv", row.names = FALSE) #false bc we have variable names
+write.csv(results.df, file = "R_output/parallel_lasso_resultsV2.csv", row.names = FALSE) #false bc we have variable names
 
 
 #read the results

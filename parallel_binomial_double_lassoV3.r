@@ -1,3 +1,5 @@
+# Same as v2, but smaller lambda.min.ratio for naive lasso, extend lookup range.
+
 library(tidyverse)
 library(data.table)
 library(gamlr)
@@ -65,7 +67,9 @@ not_useful <- c(
   'STREET_DIRECTION', 
   'STREET_NAME',
   'LATITUDE', 
-  'LONGITUDE'
+  'LONGITUDE',
+  'DAMAGE',
+  'REPORT_TYPE'
 )
 
 
@@ -81,7 +85,6 @@ responses <- c(
   'INJURIES_NON_INCAPACITATING', 
   'INJURIES_REPORTED_NOT_EVIDENT', 
   'INJURIES_NO_INDICATION'
-  #'DAMAGE'
 )
 
 
@@ -114,22 +117,34 @@ print(object.size(y), units = "auto") # 3.4 Mb
 Keeping lambda.min.ratio as default, model at seg100. Exploring further seems to not like regularization...
 "
 
-# naive <- gamlr(X, y = y , family = "binomial", standardize=TRUE) 
-# saveRDS(naive, file = "naive_binomial_lasso.rds") # save the model
-naive <- readRDS("R_output/naive_binomial_lasso.rds") # load the model
+naive <- gamlr(X, y = y , family = "binomial", standardize=TRUE, lambda.min.ratio = 1e-4) 
+saveRDS(naive, file = "R_output/naive_binomial_lassoV3.rds") # save the model
+naive <- readRDS("R_output/naive_binomial_lassoV3.rds") # load the model
 naive.B <- coef(naive)
 
 min.AICc.lambda <- naive$lambda[ which.min( AICc(naive) ) ] 
 paste("Min AICc lambda: ", min.AICc.lambda)
 
 # # Path plot
-# png("R_output/naive_binomial_lasso_path.png", width = 800, height = 600) # save the
-# plot(naive, against = "pen")
-# dev.off()
+png("R_output/naive_binomial_lasso_pathV3.png", width = 800, height = 600) # save the
+plot(naive, against = "pen")
+dev.off()
 
 
 # Non-zero coefficients
 non.zero.vars <- rownames(naive.B)[which(naive.B != 0)][-1] # -1 to exclude intercept, 127 non-zero variables
+
+# Exclue problematic variables
+non.zero.vars <- setdiff(
+  rownames(naive.B)[which(naive.B != 0)][-1], # Exclude intercept
+  c(
+  "CRASH_DATE_EST_IY", 
+  "PRIM_CONTRIBUTORY_CAUSEDISTRACTION - OTHER ELECTRONIC DEVICE (NAVIGATION DEVICE, DVD PLAYER, ETC.)", 
+  "PRIM_CONTRIBUTORY_CAUSERELATED TO BUS STOP"
+  )
+)
+
+
 
 
 
@@ -149,8 +164,6 @@ library(gamlr)
 # Future parallel backend
 options(future.globals.maxSize = 4 * 1024^3)
 plan(multicore)
-
-
 
 parallel.time <- system.time({
   results <- future_sapply(non.zero.vars, function(var_name) {
@@ -189,10 +202,11 @@ parallel.time <- system.time({
   }, simplify = FALSE)
 })
 
-
-
 print(parallel.time)
-saveRDS(results, file = "R_output/parallel_lasso_results.rds")
+saveRDS(results, file = "R_output/parallel_lasso_resultsV3.rds")
+results <- readRDS("R_output/parallel_lasso_resultsV3.rds") # load the model
+
+
 
 results.df <- do.call(rbind, lapply(results, function(res) {
   naive_coef <- naive.B[res$variable, 1]  #
@@ -207,4 +221,8 @@ results.df <- do.call(rbind, lapply(results, function(res) {
 
 
 # Save results :)
-write.csv(results.df, file = "R_output/lasso_results_with_naive.csv", row.names = FALSE) #false bc we have variable names
+write.csv(results.df, file = "R_output/parallel_lasso_resultsV3.csv", row.names = FALSE) #false bc we have variable names
+
+
+#read the results
+# results.df <- read.csv("R_output/lasso_results_with_naive.csv")
