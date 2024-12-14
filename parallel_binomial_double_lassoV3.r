@@ -114,13 +114,19 @@ print(object.size(y), units = "auto") # 3.4 Mb
 
 ## ---- "Naive" Lasso -------------------------------------------------------- ##
 "
-Keeping lambda.min.ratio as default, model at seg100. Exploring further seems to not like regularization...
+lambda.min.ratio = 1e-4 to extend the range of lambda values to search for the minimum AICc.
 "
 
 naive <- gamlr(X, y = y , family = "binomial", standardize=TRUE, lambda.min.ratio = 1e-4) 
 saveRDS(naive, file = "R_output/naive_binomial_lassoV3.rds") # save the model
 naive <- readRDS("R_output/naive_binomial_lassoV3.rds") # load the model
 naive.B <- coef(naive)
+
+naive.B.df <- as.matrix(naive.B) %>% data.frame(
+  variable = rownames(.),
+  naive_coefs = .
+) 
+write.csv(naive.B.df, file = "R_output/naive_binomial_lasso_V3.csv", row.names = FALSE) #false bc we have variable names
 
 min.AICc.lambda <- naive$lambda[ which.min( AICc(naive) ) ] 
 paste("Min AICc lambda: ", min.AICc.lambda)
